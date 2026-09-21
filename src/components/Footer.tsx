@@ -1,5 +1,6 @@
-import { ArrowUp, Shirt, Mail, Check } from 'lucide-react';
+import { ArrowUp, Mail, Check } from 'lucide-react';
 import { useState } from 'react';
+import { BrandLogo } from './BrandLogo';
 
 export function Footer() {
   const [subscribed, setSubscribed] = useState(false);
@@ -67,14 +68,7 @@ export function Footer() {
           
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 flex items-center justify-center border border-amber-300 shadow-xs">
-                <Shirt className="w-4 h-4 text-neutral-950 stroke-[2.2]" />
-              </div>
-              <span className="font-display font-bold text-xl tracking-tight text-neutral-950">
-                volt<span className="text-amber-500">tee</span>
-              </span>
-            </div>
+            <BrandLogo />
             <p className="text-xs text-neutral-600 leading-relaxed max-w-sm">
               We design minimalist, high-density 100% organic cotton t-shirts for men and women. No shortcuts, no toxic dyes, built to endure every day.
             </p>

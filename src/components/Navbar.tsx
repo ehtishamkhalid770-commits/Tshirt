@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, ShoppingBag, Heart, Menu, X, Shirt } from 'lucide-react';
+import { Search, ShoppingBag, Heart, Menu, X } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
   cartCount: number;
@@ -37,18 +38,13 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
 
           <a 
             href="#" 
-            className="group flex items-center gap-2.5 select-none"
+            className="group block select-none"
             onClick={(e) => {
               e.preventDefault();
               onSelectCategory('all');
             }}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-400/30 group-hover:scale-105 transition-transform border border-amber-300">
-              <Shirt className="w-5 h-5 text-neutral-950 stroke-[2.2]" />
-            </div>
-            <span className="font-display font-bold text-xl sm:text-2xl tracking-tight text-neutral-900 group-hover:text-amber-600 transition-colors">
-              volt<span className="text-amber-500 underline decoration-yellow-400 decoration-wavy decoration-2">tee</span>
-            </span>
+            <BrandLogo />
           </a>
         </div>
 
