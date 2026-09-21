@@ -2,5 +2,7 @@
   "name": "VoltTee - Premium Cotton T-Shirts",
   "description": "A clean white and sunburst yellow t-shirt store mockup featuring 100% organic cotton tees for men and women, vibrant yellow cards, and interactive shopping features.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

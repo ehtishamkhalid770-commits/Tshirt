@@ -1,8 +1,8 @@
 import { Shirt } from 'lucide-react';
 import { useState } from 'react';
 
-// You can use any image URL or upload your own file (e.g., /logo.png, /logo.svg, or external URL)
-export const BRAND_LOGO_URL = '/logo.svg';
+// Path for your logo file in the /public folder
+export const BRAND_LOGO_URL = '/logo.png';
 
 interface BrandLogoProps {
   className?: string;
@@ -13,24 +13,27 @@ interface BrandLogoProps {
 
 export function BrandLogo({
   className = '',
-  imageClassName = 'w-9 h-9',
-  fallbackIconSize = 20,
+  imageClassName = 'w-10 h-10',
+  fallbackIconSize = 22,
   showText = true,
 }: BrandLogoProps) {
   const [imageError, setImageError] = useState(false);
 
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      {/* Logo container: displays <img> if available, with graceful stylish fallback */}
+      {/* Logo container */}
       <div
         className={`${imageClassName} rounded-xl bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-400/25 border border-amber-300 overflow-hidden flex-shrink-0 transition-transform hover:scale-105`}
       >
         {!imageError ? (
           <img
             src={BRAND_LOGO_URL}
-            alt="VoltTee Brand Logo"
-            className="w-full h-full object-contain p-1"
-            onError={() => setImageError(true)}
+            alt="Logo"
+            className="w-full h-full object-contain p-0.5"
+            onError={() => {
+              // If logo.png is not found, fallback to graceful icon
+              setImageError(true);
+            }}
             referrerPolicy="no-referrer"
           />
         ) : (
