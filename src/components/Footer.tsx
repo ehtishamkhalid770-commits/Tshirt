@@ -1,8 +1,12 @@
-import { ArrowUp, Mail, Check } from 'lucide-react';
+import { ArrowUp, Mail, Check, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { BrandLogo } from './BrandLogo';
 
-export function Footer() {
+interface FooterProps {
+  onOpenAdmin?: () => void;
+}
+
+export function Footer({ onOpenAdmin }: FooterProps) {
   const [subscribed, setSubscribed] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -28,7 +32,7 @@ export function Footer() {
             <span>GET 15% OFF YOUR FIRST TEE</span>
           </div>
           <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-neutral-950">
-            Join the VoltTee Organic Movement
+            Join the ilovetshirts.store Movement
           </h3>
           <p className="text-xs sm:text-sm text-neutral-600 max-w-lg mx-auto">
             Early access to limited heavyweight tee drops, seasonal colorways, and exclusive member discounts.
@@ -72,8 +76,17 @@ export function Footer() {
             <p className="text-xs text-neutral-600 leading-relaxed max-w-sm">
               We design minimalist, high-density 100% organic cotton t-shirts for men and women. No shortcuts, no toxic dyes, built to endure every day.
             </p>
-            <div className="text-xs font-mono text-neutral-500">
-              © {new Date().getFullYear()} VoltTee Apparel Co. All rights reserved.
+            <div className="flex items-center gap-3 text-xs font-mono text-neutral-500">
+              <span>© {new Date().getFullYear()} ilovetshirts.store</span>
+              {onOpenAdmin && (
+                <button
+                  onClick={onOpenAdmin}
+                  className="inline-flex items-center gap-1 text-neutral-400 hover:text-amber-600 transition-colors underline cursor-pointer"
+                >
+                  <Shield className="w-3 h-3" />
+                  <span>Admin Panel (/admin)</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -112,7 +125,18 @@ export function Footer() {
               <li><span className="hover:text-amber-600 transition-colors cursor-pointer">T-Shirt Size Guide</span></li>
               <li><span className="hover:text-amber-600 transition-colors cursor-pointer">30-Day Free Returns</span></li>
               <li><span className="hover:text-amber-600 transition-colors cursor-pointer">Cotton Care & Washing</span></li>
-              <li><span className="hover:text-amber-600 transition-colors cursor-pointer">Track T-Shirt Order</span></li>
+              <li>
+                {onOpenAdmin ? (
+                  <button
+                    onClick={onOpenAdmin}
+                    className="hover:text-amber-600 transition-colors text-left"
+                  >
+                    Merchant Login (/admin)
+                  </button>
+                ) : (
+                  <span className="hover:text-amber-600 transition-colors cursor-pointer">Track T-Shirt Order</span>
+                )}
+              </li>
             </ul>
 
             <button

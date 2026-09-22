@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ShoppingBag, Heart, Menu, X } from 'lucide-react';
+import { Search, ShoppingBag, Heart, Menu, X, Shield } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
@@ -7,9 +7,10 @@ interface NavbarProps {
   onOpenCart: () => void;
   onSelectCategory: (cat: string) => void;
   activeCategory: string;
+  onOpenAdmin?: () => void;
 }
 
-export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory }: NavbarProps) {
+export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory, onOpenAdmin }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +58,7 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
                 key={link.id}
                 id={`nav-${link.id}`}
                 onClick={() => onSelectCategory(link.id)}
-                className={`relative px-3.5 py-1.5 text-xs lg:text-sm font-bold tracking-wider transition-all rounded-full ${
+                className={`relative px-3.5 py-1.5 text-xs lg:text-sm font-bold tracking-wider transition-all rounded-full cursor-pointer ${
                   isActive 
                     ? 'text-neutral-950 bg-yellow-300/80 shadow-xs border border-yellow-400' 
                     : 'text-neutral-600 hover:text-neutral-900 hover:bg-yellow-50'
@@ -69,7 +70,7 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
           })}
         </nav>
 
-        {/* Right: Actions (Search, Wishlist, Cart) */}
+        {/* Right: Actions (Search, Admin Quick Link, Cart) */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           {/* Search Trigger */}
           <div className="relative">
@@ -105,14 +106,18 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
             )}
           </div>
 
-          {/* Wishlist Icon */}
-          <button
-            id="wishlist-btn"
-            className="hidden sm:flex p-2 text-neutral-600 hover:text-amber-600 rounded-full hover:bg-neutral-100 transition-colors relative"
-            aria-label="Wishlist"
-          >
-            <Heart className="w-5 h-5" />
-          </button>
+          {/* Admin shortcut badge */}
+          {onOpenAdmin && (
+            <button
+              id="nav-admin-link"
+              onClick={onOpenAdmin}
+              className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-neutral-100 hover:bg-yellow-100 border border-neutral-200 hover:border-yellow-400 text-neutral-700 hover:text-neutral-950 text-xs font-mono font-bold transition-all cursor-pointer"
+              title="Open Admin Dashboard (/admin)"
+            >
+              <Shield className="w-3.5 h-3.5 text-amber-500" />
+              <span>Admin</span>
+            </button>
+          )}
 
           {/* Cart Bag Icon with dynamic badge */}
           <button
@@ -156,6 +161,19 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
               {link.label}
             </button>
           ))}
+
+          {onOpenAdmin && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAdmin();
+              }}
+              className="block w-full text-left px-3.5 py-2.5 rounded-lg text-sm font-bold tracking-wider text-amber-700 bg-yellow-50 border border-yellow-200"
+            >
+              🛡️ Admin Dashboard (/admin)
+            </button>
+          )}
+
           <div className="pt-3 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500 px-1">
             <span>Free shipping over $50</span>
             <span className="text-amber-600 font-semibold">100% Organic Cotton</span>

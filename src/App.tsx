@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product, ColorOption, CartItem } from './types';
-import { PRODUCTS } from './data/products';
+import { getStoredProducts, isAdminLoggedIn } from './services/storageService';
 import { AnnouncementBar } from './components/AnnouncementBar';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -11,18 +11,53 @@ import { ValuePillars } from './components/ValuePillars';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { QuickViewModal } from './components/QuickViewModal';
+import { CheckoutModal } from './components/CheckoutModal';
+import { AdminLogin } from './components/admin/AdminLogin';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 
 export function App() {
+  // Products from local storage (synced with Admin changes)
+  const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
+
+  // URL Path routing for /admin
+  const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => isAdminLoggedIn());
+
+  // Listen for browser forward/back buttons & pushState
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+      setIsAdminAuthenticated(isAdminLoggedIn());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Sync products when admin creates/edits/deletes them
+  useEffect(() => {
+    const handleProductsUpdated = () => {
+      setProducts(getStoredProducts());
+    };
+    window.addEventListener('products_updated', handleProductsUpdated);
+    return () => window.removeEventListener('products_updated', handleProductsUpdated);
+  }, []);
+
   // Cart state
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      product: PRODUCTS[0],
-      selectedColor: PRODUCTS[0].colors[0],
-      selectedSize: 'L',
-      quantity: 1
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (products.length > 0 && products[0].colors.length > 0) {
+      return [
+        {
+          product: products[0],
+          selectedColor: products[0].colors[0],
+          selectedSize: 'L',
+          quantity: 1,
+        },
+      ];
     }
-  ]);
+    return [];
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   // Active filter for t-shirts ('all' | 'men' | 'women' | 'new')
   const [activeFilter, setActiveFilter] = useState('all');
@@ -30,8 +65,22 @@ export function App() {
   // Quick View Modal
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
-  // Checkout banner simulation
-  const [checkoutNotification, setCheckoutNotification] = useState(false);
+  // Checkout banner notification
+  const [placedOrderNumber, setPlacedOrderNumber] = useState<string | null>(null);
+
+  // Navigation helpers
+  const navigateTo = (path: string) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+  };
+
+  const handleOpenAdmin = () => {
+    navigateTo('/admin');
+  };
+
+  const handleBackToStore = () => {
+    navigateTo('/');
+  };
 
   // Cart operations
   const handleAddToCart = (product: Product, color: ColorOption, size: string) => {
@@ -54,8 +103,8 @@ export function App() {
             product,
             selectedColor: color,
             selectedSize: size,
-            quantity: 1
-          }
+            quantity: 1,
+          },
         ];
       }
     });
@@ -79,14 +128,20 @@ export function App() {
 
   const handleCheckout = () => {
     setIsCartOpen(false);
-    setCheckoutNotification(true);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderSuccess = (orderNumber: string) => {
+    setIsCheckoutOpen(false);
+    setCartItems([]);
+    setPlacedOrderNumber(orderNumber);
     setTimeout(() => {
-      setCheckoutNotification(false);
-    }, 4000);
+      setPlacedOrderNumber(null);
+    }, 7000);
   };
 
   // Filter products strictly for t-shirts
-  const filteredProducts = PRODUCTS.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'men') return p.category === 'men';
     if (activeFilter === 'women') return p.category === 'women';
@@ -104,18 +159,41 @@ export function App() {
     }
   };
 
+  // ROUTE 1: If user navigates to /admin
+  const isAdminRoute = currentPath === '/admin' || currentPath.startsWith('/admin/');
+
+  if (isAdminRoute) {
+    if (!isAdminAuthenticated) {
+      return (
+        <AdminLogin
+          onSuccess={() => setIsAdminAuthenticated(true)}
+          onCancel={handleBackToStore}
+        />
+      );
+    }
+    return (
+      <AdminDashboard
+        onBackToStore={handleBackToStore}
+        onLogout={() => setIsAdminAuthenticated(false)}
+      />
+    );
+  }
+
+  // ROUTE 2: Customer Storefront
   return (
     <div className="min-h-screen bg-[#fafafa] text-neutral-900 flex flex-col selection:bg-yellow-300 selection:text-neutral-900">
       
-      {/* Checkout Success Notification */}
-      {checkoutNotification && (
-        <div className="fixed top-5 right-5 z-50 bg-white border-2 border-amber-400 p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300">
-          <div className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-neutral-950">
+      {/* Order Placed Toast Banner */}
+      {placedOrderNumber && (
+        <div className="fixed top-5 right-5 z-50 bg-neutral-950 text-white border-2 border-yellow-400 p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-4 duration-300 max-w-sm">
+          <div className="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center font-bold text-neutral-950 flex-shrink-0 text-lg">
             ✓
           </div>
           <div>
-            <p className="font-bold text-neutral-900 text-sm">Order Simulation Placed!</p>
-            <p className="text-xs text-neutral-600">Your organic cotton t-shirts are being packed.</p>
+            <p className="font-bold text-yellow-400 text-sm">Order Placed Successfully!</p>
+            <p className="text-xs text-neutral-300">
+              Order <strong className="text-white font-mono">{placedOrderNumber}</strong> has been received and saved to Admin Dashboard.
+            </p>
           </div>
         </div>
       )}
@@ -129,6 +207,7 @@ export function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onSelectCategory={scrollToBestsellers}
         activeCategory={activeFilter}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* Main Content Sections */}
@@ -161,7 +240,7 @@ export function App() {
       </main>
 
       {/* 8. Footer */}
-      <Footer />
+      <Footer onOpenAdmin={handleOpenAdmin} />
 
       {/* Slide-out Cart Drawer */}
       <CartDrawer
@@ -171,6 +250,14 @@ export function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onCheckout={handleCheckout}
+      />
+
+      {/* Customer Checkout Order Modal */}
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cartItems={cartItems}
+        onOrderSuccess={handleOrderSuccess}
       />
 
       {/* Quick View Product Modal */}

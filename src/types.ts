@@ -18,6 +18,8 @@ export interface Product {
   colors: ColorOption[];
   description: string;
   sizes: string[];
+  stock?: number;
+  createdAt?: string;
 }
 
 export interface CartItem {
@@ -35,4 +37,23 @@ export interface CategoryCard {
   shape: 'pill' | 'arch' | 'rect' | 'tall';
   bgGradient: string;
   buttonText: string;
+}
+
+export interface CustomerOrder {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  notes?: string;
+  paymentMethod: 'cod' | 'card' | 'easypaisa' | 'jazzcash';
+  items: CartItem[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  createdAt: string;
 }
