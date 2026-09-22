@@ -19,18 +19,38 @@ export function App() {
   // Products from local storage (synced with Admin changes)
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
 
+  // Route detection helper: checks pathname (/admin, /admin/), hash (#/admin, #admin), and query (?admin)
+  const checkIsAdmin = () => {
+    const p = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+    const h = window.location.hash.toLowerCase();
+    const s = window.location.search.toLowerCase();
+    return (
+      p === '/admin' ||
+      p.startsWith('/admin/') ||
+      h === '#admin' ||
+      h === '#/admin' ||
+      s.includes('admin=true') ||
+      s.includes('admin=1') ||
+      s === '?admin'
+    );
+  };
+
   // URL Path routing for /admin
-  const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
+  const [isAdminView, setIsAdminView] = useState<boolean>(() => checkIsAdmin());
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => isAdminLoggedIn());
 
-  // Listen for browser forward/back buttons & pushState
+  // Listen for browser forward/back buttons, pushState & hash changes
   useEffect(() => {
-    const handlePopState = () => {
-      setCurrentPath(window.location.pathname);
+    const handleRouteCheck = () => {
+      setIsAdminView(checkIsAdmin());
       setIsAdminAuthenticated(isAdminLoggedIn());
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleRouteCheck);
+    window.addEventListener('hashchange', handleRouteCheck);
+    return () => {
+      window.removeEventListener('popstate', handleRouteCheck);
+      window.removeEventListener('hashchange', handleRouteCheck);
+    };
   }, []);
 
   // Sync products when admin creates/edits/deletes them
@@ -71,7 +91,8 @@ export function App() {
   // Navigation helpers
   const navigateTo = (path: string) => {
     window.history.pushState({}, '', path);
-    setCurrentPath(path);
+    setIsAdminView(checkIsAdmin());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleOpenAdmin = () => {
@@ -160,9 +181,7 @@ export function App() {
   };
 
   // ROUTE 1: If user navigates to /admin
-  const isAdminRoute = currentPath === '/admin' || currentPath.startsWith('/admin/');
-
-  if (isAdminRoute) {
+  if (isAdminView) {
     if (!isAdminAuthenticated) {
       return (
         <AdminLogin
