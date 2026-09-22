@@ -226,7 +226,6 @@ export function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onSelectCategory={scrollToBestsellers}
         activeCategory={activeFilter}
-        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* Main Content Sections */}

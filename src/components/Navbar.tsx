@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ShoppingBag, Heart, Menu, X, Shield } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
@@ -7,10 +7,9 @@ interface NavbarProps {
   onOpenCart: () => void;
   onSelectCategory: (cat: string) => void;
   activeCategory: string;
-  onOpenAdmin?: () => void;
 }
 
-export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory, onOpenAdmin }: NavbarProps) {
+export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,19 +105,6 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
             )}
           </div>
 
-          {/* Admin shortcut badge */}
-          {onOpenAdmin && (
-            <button
-              id="nav-admin-link"
-              onClick={onOpenAdmin}
-              className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-neutral-100 hover:bg-yellow-100 border border-neutral-200 hover:border-yellow-400 text-neutral-700 hover:text-neutral-950 text-xs font-mono font-bold transition-all cursor-pointer"
-              title="Open Admin Dashboard (/admin)"
-            >
-              <Shield className="w-3.5 h-3.5 text-amber-500" />
-              <span>Admin</span>
-            </button>
-          )}
-
           {/* Cart Bag Icon with dynamic badge */}
           <button
             id="cart-bag-btn"
@@ -161,18 +147,6 @@ export function Navbar({ cartCount, onOpenCart, onSelectCategory, activeCategory
               {link.label}
             </button>
           ))}
-
-          {onOpenAdmin && (
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdmin();
-              }}
-              className="block w-full text-left px-3.5 py-2.5 rounded-lg text-sm font-bold tracking-wider text-amber-700 bg-yellow-50 border border-yellow-200"
-            >
-              🛡️ Admin Dashboard (/admin)
-            </button>
-          )}
 
           <div className="pt-3 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500 px-1">
             <span>Free shipping over $50</span>
